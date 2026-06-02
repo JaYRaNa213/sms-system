@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  mobile    String   @unique
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  smsLogs   SmsLog[]
+  campaignRecipients CampaignRecipient[]
+
+  @@index([name])
+  @@index([mobile])
+}
+
+model Template {
+  id        Int      @id @default(autoincrement())
+  name      String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaigns Campaign[]
+}
+
+model Campaign {
+  id          Int            @id @default(autoincrement())
+  name        String
+  message     String
+  status      CampaignStatus @default(DRAFT)
+  templateId  Int?
+  sentAt      DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  template    Template?      @relation(fields: [templateId], references: [id])
+  smsLogs     SmsLog[]
+  recipients  CampaignRecipient[]
+}
+
+model CampaignRecipient {
+  id         Int      @id @default(autoincrement())
+  campaignId Int
+  contactId  Int
+  createdAt  DateTime @default(now())
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, contactId])
+  @@index([campaignId])
+  @@index([contactId])
+}
+
+model SmsLog {
+  id         Int            @id @default(autoincrement())
+  contactId  Int?
+  campaignId Int?
+  mobile     String
+  message    String
+  status     DeliveryStatus @default(SENT)
+  createdAt  DateTime       @default(now())
+
+  contact    Contact?       @relation(fields: [contactId], references: [id])
+  campaign   Campaign?      @relation(fields: [campaignId], references: [id])
+}
+
+model Setting {
+  id           Int      @id @default(1)
+  companyName  String
+  senderId     String
+  supportEmail String
+  updatedAt    DateTime @updatedAt
+}
+
+enum CampaignStatus {
+  DRAFT
+  SENT
+}
+
+enum DeliveryStatus {
+  SENT
+  DELIVERED
+  FAILED
+}
