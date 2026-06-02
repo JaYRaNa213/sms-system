@@ -1,18 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { normalizeIndianPhoneNumber } from '../common/utils/phone-normalizer';
 
 @Injectable()
 export class ContactsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createContactDto: CreateContactDto) {
-    return this.prisma.contact.create({ data: createContactDto });
+    const normalizedMobile = normalizeIndianPhoneNumber(createContactDto.mobile);
+    
+    const existingContact = await this.prisma.contact.findUnique({
+      where: { mobile: normalizedMobile },
+    });
+
+    if (existingContact) {
+      throw new BadRequestException('Contact already exists');
+    }
+
+    return this.prisma.contact.create({ 
+      data: { ...createContactDto, mobile: normalizedMobile } 
+    });
   }
 
   async createBulk(contacts: CreateContactDto[]) {
+    const normalizedContacts = contacts.map(c => ({
+      ...c,
+      mobile: normalizeIndianPhoneNumber(c.mobile)
+    }));
+
     return this.prisma.contact.createMany({ 
-      data: contacts, 
+      data: normalizedContacts, 
       skipDuplicates: true 
     });
   }

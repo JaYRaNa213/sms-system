@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { normalizeIndianPhoneNumber } from '../common/utils/phone-normalizer';
 
 type SendSmsInput = {
   mobile: string;
@@ -18,9 +19,10 @@ export class SmsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async sendSMS(input: SendSmsInput) {
+    const normalizedMobile = normalizeIndianPhoneNumber(input.mobile);
     return this.prisma.smsLog.create({
       data: {
-        mobile: input.mobile,
+        mobile: normalizedMobile,
         message: input.message,
         campaignId: input.campaignId,
         status: 'DELIVERED',

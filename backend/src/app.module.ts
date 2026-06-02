@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { SmsModule } from './sms/sms.module';
 import { SettingsModule } from './settings/settings.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { AnalyticsModule } from './analytics/analytics.module';
     TemplatesModule,
     SmsModule,
     SettingsModule,
-    AnalyticsModule
+    AnalyticsModule,
+    DashboardModule
   ],
   controllers: [],
   providers: [],

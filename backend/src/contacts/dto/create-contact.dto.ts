@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateContactDto {
   @IsString()
@@ -7,7 +7,6 @@ export class CreateContactDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsPhoneNumber(undefined)
   mobile: string;
 
   @IsOptional()
