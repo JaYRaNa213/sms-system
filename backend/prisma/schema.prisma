@@ -70,8 +70,10 @@ model SmsLog {
   campaignId Int?
   mobile     String
   message    String
-  status     DeliveryStatus @default(SENT)
-  createdAt  DateTime       @default(now())
+  status            DeliveryStatus @default(SENT)
+  provider          String         @default("mock")
+  providerMessageId String?
+  createdAt         DateTime       @default(now())
 
   contact    Contact?       @relation(fields: [contactId], references: [id])
   campaign   Campaign?      @relation(fields: [campaignId], references: [id])
